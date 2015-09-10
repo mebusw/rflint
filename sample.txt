@@ -1,0 +1,7 @@
+*** Settings ***
+# SetUp
+
+*** Test Cases ***
+My First Case
+	Log		Hello
+    # Log
