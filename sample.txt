@@ -5,3 +5,4 @@
 My First Case
 	Log		Hello
     # Log
+    ${abc}=     123
