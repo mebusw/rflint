@@ -1,6 +1,33 @@
 import re
+from pipe import *
 
+class KeywordRule(object):
+    """docstring for KeywordRule"""
+    def __init__(self, should_not_contain, will_result_in):
+        super(KeywordRule, self).__init__()
+        self.should_not_contain = should_not_contain
+        self.will_result_in = will_result_in
 
+    def validate(self, testcases):
+        print'==', testcases
+        for casename, steps in testcases.iteritems():
+            for step in steps:
+                keyword = step[1] if step[0].startswith('$') else step[0]
+                if keyword.lower() == 'Sleep'.lower():
+                    raise UnexpectedKeywordException('Sleep')
+
+        
+class UnexpectedKeywordException(Exception):
+    """docstring for UnexpectedKeywordException"""
+    def __init__(self, keyword_name):
+        super(UnexpectedKeywordException, self).__init__()
+        self.keyword_name = keyword_name
+
+    @property
+    def error_msg(self):
+        return self.keyword_name
+    
+        
 class RFLint(object):
     """docstring for RFLint"""
     
@@ -12,9 +39,14 @@ class RFLint(object):
         self.stat = {'line_count': 0, 'empty_line_count': 0, 'comment_line_count':0, 'row_count':0, 'section_count': 0}
         self.testcases = {}
         self.curr_testcase = None
+        self.rule_list = []
 
     def rule(self, element, NotWithInLayer=None, ShouldNotUse=None, WillResultIn=None):
         pass
+
+    def rules(self, rule_list):
+        self.rule_list = rule_list
+
 
     def check(self):
         with open(self.filename) as f:
@@ -32,8 +64,15 @@ class RFLint(object):
                     self.stat['row_count'] += 1
                     self.on_row(line)
 
+        for rule in self.rule_list:
+            rule.validate(self.testcases)
+
+        
+        
+
+
     def on_section(self, line, section_type):
-        print line, section_type
+        # print line, section_type
         self.stat['section_count'] += 1
 
     def on_row(self, row):

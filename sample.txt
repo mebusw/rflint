@@ -5,4 +5,5 @@
 My First Case
 	Log		Hello
     # Log
-    ${abc}=     123
+    Sleep   10s
+    ${abc}=     Add     123     456
