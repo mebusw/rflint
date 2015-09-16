@@ -44,7 +44,7 @@ class RFLintTest(unittest.TestCase):
 
     def test_rules_should_not_contain_keywords_group(self):
         lint = RFLint('sample.txt')
-        lint.rule(KeywordRule(should_not_contain=['Click'])) \
+        lint.rule(KeywordRule(should_not_contain=['Click', 'Submit'])) \
             .rule(KeywordRule(should_not_contain=['Sleep']))
 
 

@@ -11,12 +11,20 @@ class KeywordRule(object):
     def validate(self, testcases):
         print '==', testcases
         for casename, steps in testcases.iteritems():
-            for step in steps:
-                keyword = step[1] if step[0].startswith('$') else step[0]
-                if keyword.lower() in self.should_not_contain:
-                    raise UnexpectedKeywordException(casename + ' contains: Sleep')
+            self._validate_one_case(casename, steps)
 
-        
+    def _validate_one_case(self, casename, steps):
+        validate_result = steps \
+            | select(lambda x: x[1] if x[0].startswith('$') else x[0]) \
+            | select(lambda x: x.lower()) \
+            | select(lambda x: self._validate_keyword_of_one_step(casename, x)) \
+            | as_list
+
+    def _validate_keyword_of_one_step(self, casename, keyword):
+        if keyword.lower() in self.should_not_contain:
+            raise UnexpectedKeywordException(casename + ' contains: Sleep')
+
+    
 class UnexpectedKeywordException(Exception):
     """docstring for UnexpectedKeywordException"""
     def __init__(self, keyword_name):
@@ -66,11 +74,8 @@ class RFLint(object):
                     self.on_row(line)
 
         for rule in self.rules:
-            print rule.should_not_contain
             rule.validate(self.testcases)
 
-        
-        
 
 
     def on_section(self, line, section_type):
