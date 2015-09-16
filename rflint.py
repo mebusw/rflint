@@ -3,18 +3,18 @@ from pipe import *
 
 class KeywordRule(object):
     """docstring for KeywordRule"""
-    def __init__(self, should_not_contain, will_result_in):
+    def __init__(self, should_not_contain):
         super(KeywordRule, self).__init__()
-        self.should_not_contain = should_not_contain
-        self.will_result_in = will_result_in
+        self.should_not_contain = should_not_contain | select(lambda x: x.lower()) | as_list
+        print self.should_not_contain
 
     def validate(self, testcases):
-        print'==', testcases
+        print '==', testcases
         for casename, steps in testcases.iteritems():
             for step in steps:
                 keyword = step[1] if step[0].startswith('$') else step[0]
-                if keyword.lower() == 'Sleep'.lower():
-                    raise UnexpectedKeywordException('Sleep')
+                if keyword.lower() in self.should_not_contain:
+                    raise UnexpectedKeywordException(casename + ' contains: Sleep')
 
         
 class UnexpectedKeywordException(Exception):
@@ -39,13 +39,14 @@ class RFLint(object):
         self.stat = {'line_count': 0, 'empty_line_count': 0, 'comment_line_count':0, 'row_count':0, 'section_count': 0}
         self.testcases = {}
         self.curr_testcase = None
-        self.rule_list = []
+        self.rules = []
 
-    def rule(self, element, NotWithInLayer=None, ShouldNotUse=None, WillResultIn=None):
-        pass
+    # def rule(self, element, NotWithInLayer=None, ShouldNotUse=None, WillResultIn=None):
+    #     pass
 
-    def rules(self, rule_list):
-        self.rule_list = rule_list
+    def rule(self, a_rule):
+        self.rules.append(a_rule)
+        return self
 
 
     def check(self):
@@ -64,7 +65,8 @@ class RFLint(object):
                     self.stat['row_count'] += 1
                     self.on_row(line)
 
-        for rule in self.rule_list:
+        for rule in self.rules:
+            print rule.should_not_contain
             rule.validate(self.testcases)
 
         

@@ -32,7 +32,6 @@ class RFLintTest(unittest.TestCase):
 
     def test_count_lines(self):
         lint = RFLint('sample.txt')
-        lint.rules([])
         
         lint.check()
 
@@ -45,14 +44,14 @@ class RFLintTest(unittest.TestCase):
 
     def test_rules_should_not_contain_keywords_group(self):
         lint = RFLint('sample.txt')
-        lint.rules([KeywordRule(should_not_contain=['Sleep'], will_result_in=UnexpectedKeywordException)])
-        # lint.rule('AnyKeyword', NotWithInLayer='ElementInteraction', ShouldNotUse='Selenium2LibKeywords', WillResultIn='ERROR')
+        lint.rule(KeywordRule(should_not_contain=['Click'])) \
+            .rule(KeywordRule(should_not_contain=['Sleep']))
 
 
         with self.assertRaises(UnexpectedKeywordException) as cm:
             lint.check()
         the_exception = cm.exception
-        self.assertEqual(the_exception.error_msg, 'Sleep')
+        self.assertEqual(the_exception.error_msg, 'my first case contains: Sleep')
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
